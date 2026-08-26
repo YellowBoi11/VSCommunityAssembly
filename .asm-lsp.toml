@@ -1,0 +1,18 @@
+[default_config]
+version = "0.9.0"
+assembler = "masm"
+instruction_set = "x86"
+
+[default_config.opts]
+# Tells the LSP to generate diagnostics (errors/warnings)
+diagnostics = true
+
+# Set this to false if you want to override default gcc/clang diagnostics
+default_diagnostics = true
+
+# The exact compiler or wrapper script you use to build/check MASM syntax
+# (e.g., "ml.exe" for 32-bit or "ml64.exe" for 64-bit MASM on Windows)
+compiler = "ml"
+
+# Custom flags to pass to your compiler for dry-run/syntax checks
+compile_flags_txt = ["/c", "/Zs"]
