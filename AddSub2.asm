@@ -6,7 +6,7 @@ TITLE Add and Subtract, Version 2         (AddSub2.asm)
 INCLUDE Irvine32.inc
 
 .data
-val1     dword  10E00h
+val1     dword  10D00h
 val2     dword  40000h
 val3     dword  20000h
 finalVal dword  ?
