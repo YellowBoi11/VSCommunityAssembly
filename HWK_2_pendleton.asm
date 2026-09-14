@@ -7,12 +7,12 @@ INCLUDE Irvine32.inc
   move textequ <mov>
   ;// pt 1
   nineFact textequ %(9 * 8 * 7 * 6 * 5 * 4 * 3 * 2) ; Calculates 9!
-  loadNine textequ <mov eax, nineFact> ;// moves nineFact into eax needs > 16 bit so eax
+  LOAD_NINE textequ <mov eax, nineFact> ;// moves nineFact into eax. 9! needs > 16 bit so eax rather than ax
   ;// pt 2
   unsignedInt dword 0FFFFFFFFh
   signedInt sdword 7FFFFFFFh ;// set to seven to switch the sign upon addition
   ;// pt 3
-  calculatedSecondsInDay textequ %(60 * 60 * 24)
+  calculatedSecondsInDay textequ %(60 * 60 * 24) ;// calcuate seconds in day from 60s * 60m * 24h
   SECONDS_IN_DAY textequ <mov edx, calculatedSecondsInDay> ;// moves secods in day to edx
   ;// pt 4 
   A word 123d 
@@ -27,7 +27,7 @@ main PROC
   ;// registers and flags.
   ;// Part 1
   mov eax, 0
-  loadNine ;// evaluates to 58980h
+  LOAD_NINE ;// evaluates to 58980h
   call DumpRegs ;// Check hex and cf and of here
   
   ;// Part 2 
@@ -54,11 +54,14 @@ main PROC
   ;// Part 4
   mov eax, 0
 
+  ;// A - B
   mov ax, A 
   sub ax, B
   mov A, ax
+  ;// C - D
   mov ax, otherC 
   sub ax, D
+  ;// (A - B) + (C - D)
   add ax, A
   call DumpRegs
   call WriteInt
