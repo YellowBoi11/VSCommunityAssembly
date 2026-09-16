@@ -6,13 +6,13 @@ INCLUDE Irvine32.inc
 ;//{ your variables are be defined here
   move textequ <mov>
   ;// pt 1
-  nineFact textequ %(9 * 8 * 7 * 6 * 5 * 4 * 3 * 2) ; Calculates 9!
+  nineFact equ <9 * 8 * 7 * 6 * 5 * 4 * 3 * 2> ; Calculates 9!
   LOAD_NINE textequ <mov eax, nineFact> ;// moves nineFact into eax. 9! needs > 16 bit so eax rather than ax
   ;// pt 2
   unsignedInt dword 0FFFFFFFFh
   signedInt sdword 7FFFFFFFh ;// set to seven to switch the sign upon addition
   ;// pt 3
-  calculatedSecondsInDay textequ %(60 * 60 * 24) ;// calcuate seconds in day from 60s * 60m * 24h
+  calculatedSecondsInDay equ <60 * 60 * 24> ;// calcuate seconds in day from 60s * 60m * 24h
   SECONDS_IN_DAY textequ <mov edx, calculatedSecondsInDay> ;// moves secods in day to edx
   ;// pt 4 
   A word 123d 

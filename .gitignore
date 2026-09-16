@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Raw binary executables
 *.exe
+
+# Error viles
+*.err
