@@ -7,7 +7,7 @@ INCLUDE Irvine32.inc
   baseFib byte 00h, 01h
 
   fullFibDword label dword ;// Labal for making moving into eax easier
-  fullFib byte 8 dup(0)
+  fullFib byte 8 dup(?)
 
 .code 
 main PROC 
