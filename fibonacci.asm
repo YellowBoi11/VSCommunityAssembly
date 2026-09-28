@@ -6,6 +6,7 @@ INCLUDE Irvine32.inc
   ;// base cases
   baseFib byte 00h, 01h
 
+  ;// fibonacci array
   fullFibDword label dword ;// Labal for making moving into eax easier
   fullFib byte 8 dup(?)
 
@@ -16,7 +17,7 @@ main PROC
   mov cl, lengthof fullFib
 
 L1:
-  ;// esi - 2 and - 1 will be in baseFib, where our base cases are
+  ;// esi - 2 and - 1 will be in baseFib, where our base cases are when the loop is beginning
   mov bl, [esi - 2]
   add bl, [esi - 1]
   mov BYTE PTR [esi], bl
