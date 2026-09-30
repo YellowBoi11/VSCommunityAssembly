@@ -27,7 +27,7 @@ L1:
   loop L1
 
   ;// Moving the top half of the fibonacci array (fullFib) using the label into eax
-  mov eax, [fullFibDword + 4]
+  mov eax, [fullFibDword + 3]
   call DumpRegs
   exit
 main ENDP ;// end of main procedure END
