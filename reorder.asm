@@ -9,11 +9,6 @@ INCLUDE Irvine32.inc
 
 .code 
 main PROC 
-  ;// Setup for DumpMem
-  mov esi, offset MyArray
-  mov ecx, MyArrayLen 
-  mov ebx, type MyArray
-
   ;// Exchange MyArray and MyArray + 2
   mov ax, [MyArray + 2]
   xchg ax, MyArray
@@ -23,6 +18,10 @@ main PROC
   xchg [MyArray + 4], ax
   mov [MyArray + 2], ax
 
+  ;// Setup for DumpMem
+  mov esi, offset MyArray
+  mov ecx, MyArrayLen 
+  mov ebx, type MyArray
   call DumpMem
   exit
 main ENDP ;// end of main procedure END
