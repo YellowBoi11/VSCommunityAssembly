@@ -9,8 +9,6 @@ move textequ <mov>
   workingString byte 36 DUP(0)
   ; Size of the working string
   workingStringSize = ($ - workingString) - 1
-  ; Unknown size of the string 
-  StringLen byte ?
 
 .code 
 
@@ -22,13 +20,21 @@ main PROC
   call Userinput ; Ask for user integer input
   mov ecx, eax ; move that input into ecx
 
+  ; Setting the seed for Randomization
+  call Randomize
+
+; Loops the amount of times user declares in User input.
 L1:
   push ecx ; ecx is returned by some calls, so pushing to the stack makes sense
-  call HowMany
-  call GenerateString
-  call WriteString
+  call HowMany ; generates the length of the string in ecx
+  call GenerateString ; consumes ecx to generate a string
+
+  ; Writes the string to the screen and sets it to 0 so new strings don't overlap
+  call WriteString 
   call Crlf
   call zeroString
+
+  ; Pops the loop number back and loops
   pop ecx
   loop L1
 
@@ -66,17 +72,9 @@ HowMany PROC USES eax
 ; -------------------------------------------------------------------------------------
   .data ; No data required
   .code 
-    ; Delay the code for 1ms so that way randomize changes the seed every time
-    ; The seed is based on system time and this program can execute so fast 
-    ; nothing is actually randomized
-    mov eax, 1
-    call Delay 
-
     mov eax, 26 ; Sets the randomly generated upper bound exclusive
 
-    ; Setting the seed and calling RandomRange
-    call Randomize
-    call RandomRange
+    call RandomRange ; Generates the random number between 0 and 25
 
     add eax, 10 ; Adds ten for the lower bound of ten. Range is 10 - 35
     mov ecx, eax ; Moves the randomly generated value into ecx 
@@ -129,13 +127,16 @@ zeroString PROC uses edx ecx
 
   .data ; no data required 
   .code 
-    mov ecx, 256
-  L:
-    mov byte ptr [edx], 0
-    inc edx 
+    mov ecx, 256 ; Maximum string size user can input
+  ZeroLoop:
+    ; check if the value is already null, end the procedure if so
     cmp byte ptr [edx], 0
     je ZeroEnd
-    loop L 
+
+    ; Set the value at edx to null
+    mov byte ptr [edx], 0
+    inc edx 
+    loop ZeroLoop 
 
   ZeroEnd:
     ret
