@@ -20,10 +20,10 @@ main PROC
   mov edx, offset workingString ; Store the offset of the workingString
   mov ebx, workingStringSize
   call Userinput ; Ask for user integer input
-  mov ecx, eax
+  mov ecx, eax ; move that input into ecx
 
 L1:
-  push ecx
+  push ecx ; ecx is returned by some calls, so pushing to the stack makes sense
   call HowMany
   call GenerateString
   call WriteString
@@ -66,13 +66,19 @@ HowMany PROC USES eax
 ; -------------------------------------------------------------------------------------
   .data ; No data required
   .code 
+    ; Delay the code for 1ms so that way randomize changes the seed every time
+    ; The seed is based on system time and this program can execute so fast 
+    ; nothing is actually randomized
+    mov eax, 1
+    call Delay 
+
     mov eax, 26 ; Sets the randomly generated upper bound exclusive
 
     ; Setting the seed and calling RandomRange
     call Randomize
     call RandomRange
 
-    add eax, 10 ; Adds ten for the lower bound of ten 
+    add eax, 10 ; Adds ten for the lower bound of ten. Range is 10 - 35
     mov ecx, eax ; Moves the randomly generated value into ecx 
     ret
 
@@ -110,26 +116,28 @@ GenerateCapital PROC USES ecx
     mov eax, 55
     call HowMany ; Generate number between 10 and 35
     add eax, ecx  ; add 55 to get a number between 65 and 90
-    call WriteDec
-    call Crlf
     ret 
 
 GenerateCapital ENDP
 
 ; -------------------------------------------------------------------------------------
-zeroString PROC uses edx
-; Sets a string to null terminators
+zeroString PROC uses edx ecx
+; Iterates over a string until it reaches a null terminator strings MUST be terminated
 ; REQUIRES: EDX = offset of string 
-; EBX = size of the string 
-; USES: EDX
+; USES: ECX = The max number of iterations (Set to a conservative 265 here)
 ; -------------------------------------------------------------------------------------
 
   .data ; no data required 
   .code 
+    mov ecx, 256
   L:
     mov byte ptr [edx], 0
     inc edx 
+    cmp byte ptr [edx], 0
+    je ZeroEnd
     loop L 
+
+  ZeroEnd:
     ret
 
 zeroString ENDP
