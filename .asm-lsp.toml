@@ -15,4 +15,4 @@ default_diagnostics = true
 compiler = "ml"
 
 # Custom flags to pass to your compiler for dry-run/syntax checks
-compile_flags_txt = ["/c", "/Zs"]
+compile_flags_txt = ["/c", "/Zs", "/I/home/luca/Irvine"]
