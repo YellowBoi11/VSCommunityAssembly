@@ -1,4 +1,4 @@
-TITLE PA4.asm
+TITLE PA4_With_Color.asm
 
 INCLUDE Irvine32.inc 
 
