@@ -34,7 +34,7 @@ L1:
   call WriteString 
   call Crlf
 
-  call zeroString
+  call ClrString
 
   ; Pops the loop number back and loops
   pop ecx
@@ -85,18 +85,19 @@ HowMany PROC USES eax
 HowMany ENDP
 
 ; -------------------------------------------------------------------------------------
-GenerateString PROC USES edx
+GenerateString PROC USES ebx
 ; Generates a string at a fixed length
 ; REQUIRES: ECX = Length of the string in bytes
 ; ESI: The offset of the string you want to generate
 ; RETURNS: EDX = Offset of the returned string 
-; USES: none
+; USES: EBX = indexed addressing index
 ; -------------------------------------------------------------------------------------
   .code 
+    mov ebx, 0
   L:
     call GenerateCapital
-    mov byte ptr [edx], al 
-    inc edx
+    mov byte ptr [edx + ebx], al 
+    inc ebx
     loop L
     ret
 
@@ -121,29 +122,31 @@ GenerateCapital PROC USES ecx
 GenerateCapital ENDP
 
 ; -------------------------------------------------------------------------------------
-zeroString PROC uses edx ecx
+ClrString PROC uses ebx ecx
 ; Iterates over a string until it reaches a null terminator strings MUST be terminated
 ; REQUIRES: EDX = offset of string 
 ; USES: ECX = The max number of iterations (Set to a conservative 265 here)
+; EBX = offset for indexed addressing
 ; -------------------------------------------------------------------------------------
 
   .data ; no data required 
   .code 
     mov ecx, 256 ; Maximum string size user can input
-  ZeroLoop:
+    mov ebx, 0
+  ClrLoop:
     ; check if the value is already null, end the procedure if so
-    cmp byte ptr [edx], 0
-    je ZeroEnd
+    cmp byte ptr [edx + ebx], 0
+    je ClrEnd
 
     ; Set the value at edx to null
-    mov byte ptr [edx], 0
-    inc edx 
-    loop ZeroLoop 
+    mov byte ptr [edx + ebx], 0
+    inc ebx 
+    loop ClrLoop 
 
-  ZeroEnd: ; End of the procedure
+  ClrEnd:
     ret
 
-zeroString ENDP
+ClrString ENDP
 
 ; -------------------------------------------------------------------------------------
 StringColor PROC uses eax
