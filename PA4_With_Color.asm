@@ -140,7 +140,7 @@ zeroString PROC uses edx ecx
     inc edx 
     loop ZeroLoop 
 
-  ZeroEnd:
+  ZeroEnd: ; End of the procedure
     ret
 
 zeroString ENDP
@@ -154,7 +154,7 @@ StringColor PROC uses eax
 ; -------------------------------------------------------------------------------------
 .data 
 .code 
-  mov al, 254 ; Upper bound of the colors
+  mov al, 255 ; Upper bound of the colors
   call RandomRange 
   inc al ; Incremented so color does not include black on black 00h as the lower nibble of al
 
