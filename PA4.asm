@@ -17,11 +17,14 @@ main PROC
 
   mov edx, offset workingString ; Store the offset of the workingString
   mov ebx, workingStringSize
-  call Userinput ; Ask for user integer input
-  mov ecx, eax ; move that input into ecx
 
   ; Setting the seed for Randomization
   call Randomize
+
+  start: ; jump to start of the program
+  call Userinput ; Ask for user integer input
+  mov ecx, eax ; move that input into ecx
+
 
 ; Loops the amount of times user declares in User input.
 L1:
@@ -38,6 +41,10 @@ L1:
   pop ecx
   loop L1
 
+  ; Prompts the user for continuation
+  call ExitPrompt
+  cmp al, 'y'
+  je start
 
 exit
 main ENDP
@@ -123,6 +130,7 @@ GenerateCapital ENDP
 ClrString PROC uses ebx ecx
 ; Iterates over a string until it reaches a null terminator strings MUST be terminated
 ; REQUIRES: EDX = offset of string 
+; RETURNS: none
 ; USES: ECX = The max number of iterations (Set to a conservative 265 here)
 ; EBX = offset for indexed addressing
 ; -------------------------------------------------------------------------------------
@@ -145,4 +153,25 @@ ClrString PROC uses ebx ecx
     ret
 
 ClrString ENDP
+
+; -------------------------------------------------------------------------------------
+ExitPrompt PROC uses edx
+; Pompts the user for a char [y,n] to quit the program (will quit unless it's y)
+; Requires: none
+; Returns: al with character input
+; Uses: EAX = character input by user
+; EDX: String offset
+; -------------------------------------------------------------------------------------
+.data 
+  exitString byte "Would you like to continue [y,n]? ",0
+.code 
+  mov eax, 0
+  mov edx, offset exitString
+  call WriteString
+  call ReadChar 
+  call Crlf
+  ret 
+
+ExitPrompt ENDP
+
 END main ; End of PA4
