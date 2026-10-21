@@ -176,11 +176,10 @@ StringColor ENDP
 
 ; -------------------------------------------------------------------------------------
 ExitPrompt PROC uses edx
-; Pompts the user for a char [y,n] to quit the program (will quit unless it's y)
-; Requires: none
-; Returns: al with character input
-; Uses: EAX = character input by user
-; EDX: String offset
+; POMPTS the user for a char [y,n] to quit the program (will quit unless it's y)
+; REQUIRES: none
+; RETURNS: al with character input
+; USES: EDX = String offset for prompting the user
 ; -------------------------------------------------------------------------------------
 .data 
   exitString byte "Would you like to continue [y,n]? ",0
