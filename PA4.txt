@@ -1,0 +1,176 @@
+TITLE PA4.asm
+
+INCLUDE Irvine32.inc 
+
+move textequ <mov>
+
+.data 
+  ; Storage for the randomly generated string
+  workingString byte 36 DUP(0)
+  ; Size of the working string
+  workingStringSize = ($ - workingString) - 1
+
+.code 
+
+; Beginning of main
+main PROC
+
+  mov edx, offset workingString ; Store the offset of the workingString
+  mov ebx, workingStringSize
+
+  ; Setting the seed for Randomization
+  call Randomize
+
+  start: ; jump to start of the program
+  call Userinput ; Ask for user integer input
+  mov ecx, eax ; move that input into ecx
+
+
+; Loops the amount of times user declares in User input.
+L1:
+  push ecx ; ecx is returned by some calls, so pushing to the stack makes sense
+  call HowMany ; generates the length of the string in ecx
+  call GenerateString ; consumes ecx to generate a string
+
+  ; Writes the string to the screen and sets it to 0 so new strings don't overlap
+  call WriteString 
+  call Crlf
+  call ClrString
+
+  ; Pops the loop number back and loops
+  pop ecx
+  loop L1
+
+  ; Prompts the user for continuation
+  call ExitPrompt
+  cmp al, 'y'
+  je start
+
+exit
+main ENDP
+; End of main 
+
+
+; -------------------------------------------------------------------------------------
+Userinput PROC USES edx
+; A function that asks the user for an unsigned integer input
+; REQUIRES: none
+; RETURNS: EAX = The unsigned integer input
+; USES: EDX = The offset of the prompt string
+; -------------------------------------------------------------------------------------
+  .data 
+    promptString byte "Please input an unsigned int: ",0
+  
+  .code 
+    mov edx, offset promptString ; Prepairation for WriteString
+  
+    call WriteString
+    call ReadDec ; Reads a 32 bit integer from the keyboard
+    ret 
+
+Userinput ENDP
+
+; -------------------------------------------------------------------------------------
+HowMany PROC USES eax
+; Generates a random nubmer between 10 and 35
+; REQUIRES: none 
+; RETURNS: ECX = The randomly generated string size
+; USES: EAX = the size of the randomly generated number
+; -------------------------------------------------------------------------------------
+  .data ; No data required
+  .code 
+    mov eax, 26 ; Sets the randomly generated upper bound exclusive
+
+    call RandomRange ; Generates the random number between 0 and 25
+
+    add eax, 10 ; Adds ten for the lower bound of ten. Range is 10 - 35
+    mov ecx, eax ; Moves the randomly generated value into ecx 
+    ret
+
+HowMany ENDP
+
+; -------------------------------------------------------------------------------------
+GenerateString PROC USES ebx
+; Generates a string at a fixed length
+; REQUIRES: ECX = Length of the string in bytes
+; ESI: The offset of the string you want to generate
+; RETURNS: EDX = Offset of the returned string 
+; USES: EBX = indexed addressing index
+; -------------------------------------------------------------------------------------
+  .code 
+    mov ebx, 0
+  L:
+    call GenerateCapital
+    mov byte ptr [edx + ebx], al 
+    inc ebx
+    loop L
+    ret
+
+GenerateString ENDP
+
+; -------------------------------------------------------------------------------------
+GenerateCapital PROC USES ecx
+; Generates a random capital letter. Uses HowMany as base and adds (the range of  
+; capital letters in ASCII is 25)
+; REQUIRES: none 
+; RETURNS: EAX = the ASCII value of the character
+; USES: ECX = The return of How Many
+; -------------------------------------------------------------------------------------
+  .data ; no data required
+  .code 
+    ; Moving 55 into eax. Uses full register to not work with upper portions
+    mov eax, 55
+    call HowMany ; Generate number between 10 and 35
+    add eax, ecx  ; add 55 to get a number between 65 and 90
+    ret 
+
+GenerateCapital ENDP
+
+; -------------------------------------------------------------------------------------
+ClrString PROC uses ebx ecx
+; Iterates over a string until it reaches a null terminator strings MUST be terminated
+; REQUIRES: EDX = offset of string 
+; RETURNS: none
+; USES: ECX = The max number of iterations (Set to a conservative 265 here)
+; EBX = offset for indexed addressing
+; -------------------------------------------------------------------------------------
+
+  .data ; no data required 
+  .code 
+    mov ecx, 256 ; Maximum string size user can input
+    mov ebx, 0
+  ClrLoop:
+    ; check if the value is already null, end the procedure if so
+    cmp byte ptr [edx + ebx], 0
+    je ClrEnd
+
+    ; Set the value at edx to null
+    mov byte ptr [edx + ebx], 0
+    inc ebx 
+    loop ClrLoop 
+
+  ClrEnd:
+    ret
+
+ClrString ENDP
+
+; -------------------------------------------------------------------------------------
+ExitPrompt PROC uses edx
+; POMPTS the user for a char [y,n] to quit the program (will quit unless it's y)
+; REQUIRES: none
+; RETURNS: al with character input
+; USES: EDX = String offset for prompting the user
+; -------------------------------------------------------------------------------------
+.data 
+  exitString byte "Would you like to continue [y,n]? ",0
+.code 
+  mov eax, 0
+  mov edx, offset exitString
+  call WriteString
+  call ReadChar 
+  call Crlf
+  ret 
+
+ExitPrompt ENDP
+
+END main ; End of PA4
