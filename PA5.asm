@@ -362,6 +362,10 @@ RemoveNonAlpha ENDP
 ; eax for end of string
 ; esi for beginning of string 
 ; edx for messages
+
+; I opted to not use the stack for this, since the return uses the stack, and I didn't 
+; want to worry about finishing evey loop, setting a "flag", or doing the stack frame dance. This allows me to do it 
+; by only going over half of the string size, rather than twice over the string.
 IsPalindrome proc uses ebx ecx eax esi edx
 
 .data
