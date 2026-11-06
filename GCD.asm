@@ -10,29 +10,25 @@ Description: A program for testing euclids GCD algorithm in masm assembly
 
 INCLUDE Irvine32.inc
 
-Arg2 textequ <dword ptr [ebp + 12]>
-Arg1 textequ <dword ptr [ebp + 8]>
-
 ClearEAX textequ <mov eax, 0>
 ClearEBX textequ <mov ebx, 0>
 ClearECX textequ <mov ecx, 0>
 ClearEDX textequ <mov edx, 0>
 ClearESI textequ <mov esi, 0>
 ClearEDI textequ <mov edi, 0>
-maxLength = 51d
 
+GCD proto, Numerator:dword, Arg2:dword
 
 .data
 .code
 main PROC
 
   ; Push variables to stack
-  mov eax, 35
-  mov edx, 21
-  push eax
-  push edx 
+  mov eax, 4000
+  mov edx, 3000
 
-  call GCD
+  INVOKE GCD, eax, edx
+
   call WriteDec
   call crlf
 
@@ -41,49 +37,34 @@ main endp
 
 
 ;-------------------------
-GCD PROC
+GCD PROC, Numerator:dword, Denominator:dword
 ; Finds the greatest common denominator of two decimal numbers
-; Recieves: Two unsigned integers in the stack
+; Recieves: Two unsigned integers from INVOKE
 ; Returns: eax, greatest common denominator 
 ;-------------------------
-  enter 8, 0
+  LOCAL NextDenominator:dword, NextNumerator:dword
 
   ; Order doesn't matter here
-  mov eax, Arg1
-  mov ebx, Arg2
+  mov eax, Numerator
+  mov ebx, Denominator
   
   ; Recursive solution 
-  .IF ebx <= 0
-    leave 
-    ret 
-  .ENDIF
+  cmp ebx, 0
+  jnz GCDStart
+  ret  ; Base case that returns
 
+GCDStart:
   ClearEDX
   div ebx 
 
   ; Moving denominator into numerator
-  mov dword ptr [ebp - 8], ebx 
+  mov NextNumerator, ebx 
 
   ; Moving the remainder into the denominator
-  mov dword ptr [ebp - 4], edx 
+  mov NextDenominator, edx 
   call GCD
-
-  ; Iterative Solution
-  ; .WHILE ebx > 0
-
-  ;   ; Make sure edx is zero
-  ;   ClearEDX
-  ;   div ebx
-
-  ;   ; Move the denominator into the numerator
-  ;   mov eax, ebx
-
-  ;   ; Move the remainder into the demoniator
-  ;   mov ebx, edx
-
-  ; .ENDW
-
-  leave
+  
+  ; Returns after all lower return.
   ret
 
 GCD ENDP
