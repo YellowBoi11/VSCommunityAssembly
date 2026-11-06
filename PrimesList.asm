@@ -23,7 +23,7 @@ PrimesList PROTO, Arg1:ptr byte, Arg2:dword
 
 
 .data
-  bitArr byte 800 dup(0)
+  bitArr byte 625 dup(0) ; 10000 / 2 = 5000 (only odd numbers) 5000 / 8 = 625 (bytes)
 .code
 main PROC
   mov eax, 10000
@@ -33,9 +33,16 @@ main endp
 
 ;-------------------------
 PrimesList PROC, primeArray:dword, upperBound:dword
-; Finds all the primes from 2 - a given number
-; Recieves: a given number on the stack, a 625 byte array offset on the stack
-; Returns: none, outputs primes to the screen 
+; Finds all the primes from 3 - a given number
+; Recieves: an upperBound number on the stack, an (limit/2)/8 byte array of zeros offset on the stack
+; Returns: nothing, outputs primes to the screen 
+; INFO: Each number from 3 up to 10000 has it's own bit. This bit is found by dividing
+; the current number by 2 (eliminating evens), dividing by 8 (eax holds the byte), 
+; and rotating right by edx - 1 (remainder holds the bit location). this allows our 
+; memory space to be 1/16 what it would be if each number had it's own byte, and 
+; even numbers were checked. I know there are further optimizations that can be made 
+; through segmentation, but this was enough for me. I can't even do LOOP because the 
+; procedure is too large.
 ;-------------------------
 
 LOCAL currentLocation:ptr byte, multLocation:dword
@@ -43,45 +50,6 @@ LOCAL currentLocation:ptr byte, multLocation:dword
 .data 
   primeMessage byte " is prime",0
 .code 
-;   mov ecx, Arg1
-;   dec ecx
-; 
-;   mov ebx, 2 ; Start
-; 
-;   L1:
-;     push ecx 
-;     mov Var1, 2
-;     mov ecx, ebx
-;     sub ecx, 1
-;   L2:
-; 
-;     .IF Var1 != ebx 
-;       ClearEDX
-;       mov eax, ebx 
-;       div Var1
-;       .IF edx == 0
-;         jmp EndL1
-;       .ENDIF
-; 
-;     .ELSEIF Var1 == ebx 
-;       mov edx, offset primeMessage
-;       mov eax, ebx
-;       call WriteDec
-;       call WriteString
-;       call Crlf
-;     .ENDIF
-; 
-;   
-;   EndL2:
-;     inc Var1
-;     loop L2
-;     
-; 
-;   EndL1:
-;     pop ecx
-;     inc ebx
-;     Loop L1
-
   mov esi, primeArray
   mov currentLocation, 3 ; Initial start location
   mov ecx, upperBound
@@ -95,13 +63,15 @@ LOCAL currentLocation:ptr byte, multLocation:dword
 
     ; Divide by 8 and find remainder and result for shift position and array position
     ClearEDX
-    push ecx
+    push ecx ; Pushed because ecx must be used for rotate instructions
     mov ebx, 8
     div ebx
     dec edx ; Decrement remainder
+
+    ; Find the location in the bitmask
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
-    ror ebx, cl  ; move the bit representing the current number in
+    ror ebx, cl  ; move the bit representing the current number as the lsb
     test ebx, 1 ; Check if the bit is one
     pushfd 
     rol ebx, cl ; repair the current number
@@ -115,46 +85,53 @@ LOCAL currentLocation:ptr byte, multLocation:dword
     call WriteString 
     call Crlf 
 
+    ; Prep for checking proper multiples
     mov ebx, currentLocation
   PrimeInnerLoop:
-    ; Current value x current value 
-    ClearEDX
+
+    ; Next proper multiple
     add eax, currentLocation
+    cmp eax, upperBound
+    jge PrimeOuterLoopEnd ; Short circuit if greater than upperBound
     mov multLocation, eax
-    ror eax, 1
-    pushfd
-    rol eax, 1
-    popfd
-    jnc incrementBypass ; Skip if even
+
+    ; Check if even
+    test eax, 1
+    jp incrementBypass ; Skip the bitmask if even
 
     shr eax, 1 ; divide by 2 
 
+    ; Get the byte and location
     ClearEDX
     mov ebx, 8
     div ebx
     dec edx ; decreemnt remainer
 
-    ; Set the bit proper
+    ; Set the bit to 1
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
     ror ebx, cl
     or ebx, 00000001h
     rol ebx, cl
-    mov byte ptr [esi + eax], bl
+    mov byte ptr [esi + eax], bl ; move the mask back into the array
 
 incrementBypass:
+    ; Move  the multLocation back into eax
     mov eax, multLocation
-    cmp eax, upperBound
-    jl PrimeInnerLoop
+    jmp PrimeInnerLoop
     
   PrimeOuterLoopEnd:
     pop ecx
+
+    ; Increment to the next number in the sequence
     mov eax, currentLocation 
     add eax, 2 
     mov currentLocation, eax 
+
+    ; Manual ecx check because this PROC is too large for conditional jumps
     dec ecx
     cmp ecx, 0
-    jz PrimeLoopEnd
+    jz PrimeLoopEnd 
     jmp PrimeOuterLoop
 
   PrimeLoopEnd:
