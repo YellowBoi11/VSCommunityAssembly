@@ -19,7 +19,7 @@ ClearESI textequ <mov esi, 0>
 ClearEDI textequ <mov edi, 0>
 maxLength = 10000d
 
-PrimesList PROTO, Arg1:ptr byte, Arg2:dword
+PrimesList PROTO, primeArray:ptr byte, upperBound:dword
 
 
 .data
@@ -32,7 +32,7 @@ main PROC
 main endp 
 
 ;-------------------------
-PrimesList PROC, primeArray:dword, upperBound:dword
+PrimesList PROC, primeArray:ptr byte, upperBound:dword
 ; Finds all the primes from 3 - a given number
 ; Recieves: an upperBound number on the stack, an (limit/2)/8 byte array of zeros offset on the stack
 ; Returns: nothing, outputs primes to the screen 
@@ -45,7 +45,7 @@ PrimesList PROC, primeArray:dword, upperBound:dword
 ; procedure is too large.
 ;-------------------------
 
-LOCAL currentLocation:ptr byte, multLocation:dword
+LOCAL currentLocation:dword, multLocation:dword
 ; LOCAL Var1:dword
 .data 
   primeMessage byte " is prime",0
