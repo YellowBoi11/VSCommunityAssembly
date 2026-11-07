@@ -26,7 +26,7 @@ PrimesList PROTO, primeArray:ptr byte, upperBound:dword
   bitArr byte 625 dup(0) ; 10000 / 2 = 5000 (only odd numbers) 5000 / 8 = 625 (bytes)
 .code
 main PROC
-  mov eax, 10000
+  mov eax, 997
   Invoke PrimesList, addr bitArr, eax
   exit 
 main endp 
@@ -46,17 +46,16 @@ PrimesList PROC, primeArray:ptr byte, upperBound:dword
 ;-------------------------
 
 LOCAL currentLocation:dword, multLocation:dword
-; LOCAL Var1:dword
+
 .data 
   primeMessage byte " is prime",0
 .code 
   mov esi, primeArray
   mov currentLocation, 3 ; Initial start location
   mov ecx, upperBound
-  sub ecx, 2
-  ror ecx, 1 ; Divide by two since all bits are odd numbers
+  shr ecx, 1 ; Divide by two since all bits are odd numbers
 
-  PrimeOuterLoop::
+  PrimeOuterLoop:
     ; Get current number
     mov eax, currentLocation
     shr eax, 1 ; Divide by 2 
@@ -65,19 +64,10 @@ LOCAL currentLocation:dword, multLocation:dword
     ClearEDX
     push ecx ; Pushed because ecx must be used for rotate instructions
     mov ebx, 8
+    dec eax ; Decrement so 3 -> 0, 5 -> 1, 7 -> 2, etc
     div ebx
-    cmp edx, 0
-    jz bypassInitialDec
-    dec edx ; Decrement remainder
-    jmp postBypassInitialDecrement
-    
-  ; If edx is 0, it in reality should be 7, and eax should be one lower
-  ; Bypass exists to address that case
-  bypassInitialDec:
-    dec eax 
-    mov edx, 7
+
     ; Find the location in the bitmask
-  postBypassInitialDecrement:
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
     ror ebx, cl  ; move the bit representing the current number as the lsb
@@ -94,10 +84,8 @@ LOCAL currentLocation:dword, multLocation:dword
     call WriteString 
     call Crlf 
 
-    ; Prep for checking proper multiples
-    mov ebx, currentLocation
+  ; Checking proper multiples
   PrimeInnerLoop:
-
     ; Next proper multiple
     add eax, currentLocation
     cmp eax, upperBound
@@ -113,19 +101,9 @@ LOCAL currentLocation:dword, multLocation:dword
     ; Get the byte and location
     ClearEDX
     mov ebx, 8
+    dec eax ; Decrement so 3 -> 0, 5 -> 1, 7 -> 2, etc
     div ebx
-    cmp edx, 0
-    jz bypassSecondDecrement
 
-    dec edx ; decreemnt remainer
-    jmp postBypassSecondDecrement
-
-  ; If edx is 0, it in reality should be 7, and eax should be one lower
-  ; Bypass exists to address that case
-  bypassSecondDecrement:
-    dec eax 
-    mov edx, 7
-  postBypassSecondDecrement:
     ; Move the mask and edit it's apropriate location
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
@@ -138,7 +116,8 @@ LOCAL currentLocation:dword, multLocation:dword
     ; Move  the multLocation back into eax
     mov eax, multLocation
     jmp PrimeInnerLoop
-    
+  
+  ; Move to the next number
   PrimeOuterLoopEnd:
     pop ecx
 
