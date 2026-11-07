@@ -66,9 +66,18 @@ LOCAL currentLocation:dword, multLocation:dword
     push ecx ; Pushed because ecx must be used for rotate instructions
     mov ebx, 8
     div ebx
+    cmp edx, 0
+    jz bypassInitialDec
     dec edx ; Decrement remainder
-
+    jmp postBypassInitialDecrement
+    
+  ; If edx is 0, it in reality should be 7, and eax should be one lower
+  ; Bypass exists to address that case
+  bypassInitialDec:
+    dec eax 
+    mov edx, 7
     ; Find the location in the bitmask
+  postBypassInitialDecrement:
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
     ror ebx, cl  ; move the bit representing the current number as the lsb
@@ -105,9 +114,19 @@ LOCAL currentLocation:dword, multLocation:dword
     ClearEDX
     mov ebx, 8
     div ebx
-    dec edx ; decreemnt remainer
+    cmp edx, 0
+    jz bypassSecondDecrement
 
-    ; Set the bit to 1
+    dec edx ; decreemnt remainer
+    jmp postBypassSecondDecrement
+
+  ; If edx is 0, it in reality should be 7, and eax should be one lower
+  ; Bypass exists to address that case
+  bypassSecondDecrement:
+    dec eax 
+    mov edx, 7
+  postBypassSecondDecrement:
+    ; Move the mask and edit it's apropriate location
     movzx ebx, byte ptr [esi + eax]
     mov ecx, edx
     ror ebx, cl
@@ -115,7 +134,7 @@ LOCAL currentLocation:dword, multLocation:dword
     rol ebx, cl
     mov byte ptr [esi + eax], bl ; move the mask back into the array
 
-incrementBypass:
+  incrementBypass:
     ; Move  the multLocation back into eax
     mov eax, multLocation
     jmp PrimeInnerLoop
@@ -127,6 +146,7 @@ incrementBypass:
     mov eax, currentLocation 
     add eax, 2 
     mov currentLocation, eax 
+    mov multLocation, 0
 
     ; Manual ecx check because this PROC is too large for conditional jumps
     dec ecx
