@@ -26,7 +26,7 @@ PrimesList PROTO, primeArray:ptr byte, upperBound:dword
   bitArr byte 625 dup(0) ; 10000 / 2 = 5000 (only odd numbers) 5000 / 8 = 625 (bytes)
 .code
 main PROC
-  mov eax, 997
+  mov eax, 33
   Invoke PrimesList, addr bitArr, eax
   exit 
 main endp 
@@ -89,7 +89,7 @@ LOCAL currentLocation:dword, multLocation:dword
     ; Next proper multiple
     add eax, currentLocation
     cmp eax, upperBound
-    jge PrimeOuterLoopEnd ; Short circuit if greater than upperBound
+    jg PrimeOuterLoopEnd ; Short circuit if greater than upperBound
     mov multLocation, eax
 
     ; Check if even
