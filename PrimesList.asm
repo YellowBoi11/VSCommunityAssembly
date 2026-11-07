@@ -26,7 +26,7 @@ PrimesList PROTO, primeArray:ptr byte, upperBound:dword
   bitArr byte 625 dup(0) ; 10000 / 2 = 5000 (only odd numbers) 5000 / 8 = 625 (bytes)
 .code
 main PROC
-  mov eax, 33
+  mov eax, 997
   Invoke PrimesList, addr bitArr, eax
   exit 
 main endp 
@@ -53,6 +53,7 @@ LOCAL currentLocation:dword, multLocation:dword
   mov esi, primeArray
   mov currentLocation, 3 ; Initial start location
   mov ecx, upperBound
+  sub ecx, 1
   shr ecx, 1 ; Divide by two since all bits are odd numbers
 
   PrimeOuterLoop:
