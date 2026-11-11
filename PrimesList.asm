@@ -19,7 +19,7 @@ ClearESI textequ <mov esi, 0>
 ClearEDI textequ <mov edi, 0>
 maxLength = 10000d
 
-PrimesList PROTO, primeArray:ptr byte, upperBound:dword
+FindPrimes PROTO, primeArray:ptr byte, upperBound:dword
 
 
 .data
@@ -27,12 +27,12 @@ PrimesList PROTO, primeArray:ptr byte, upperBound:dword
 .code
 main PROC
   mov eax, 997
-  Invoke PrimesList, addr bitArr, eax
+  Invoke FindPrimes, addr bitArr, eax
   exit 
 main endp 
 
 ;-------------------------
-PrimesList PROC, primeArray:ptr byte, upperBound:dword
+FindPrimes PROC, primeArray:ptr byte, upperBound:dword
 ; Finds all the primes from 3 - a given number
 ; Recieves: an upperBound number on the stack, an (limit/2)/8 byte array of zeros offset on the stack
 ; Returns: nothing, outputs primes to the screen 
@@ -136,5 +136,5 @@ LOCAL currentLocation:dword, multLocation:dword
 
   PrimeLoopEnd:
     ret
-PrimesList ENDP
+FindPrimes ENDP
 END main
